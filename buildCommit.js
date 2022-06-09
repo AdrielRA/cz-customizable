@@ -5,33 +5,6 @@ const defaultSubjectSeparator = ': ';
 const defaultMaxLineWidth = 100;
 const defaultBreaklineChar = '|';
 
-const addTicketNumber = (ticketNumber, config) => {
-  if (!ticketNumber) {
-    return '';
-  }
-  if (config.ticketNumberPrefix) {
-    return `${config.ticketNumberPrefix + ticketNumber.trim()} `;
-  }
-  return `${ticketNumber.trim()} `;
-};
-
-const addScope = (scope, config) => {
-  const separator = _.get(config, 'subjectSeparator', defaultSubjectSeparator);
-
-  if (!scope) return separator; // it could be type === WIP. So there is no scope
-
-  return `(${scope.trim()})${separator}`;
-};
-
-const addSubject = subject => _.trim(subject);
-
-const addType = (type, config) => {
-  const prefix = _.get(config, 'typePrefix', '');
-  const suffix = _.get(config, 'typeSuffix', '');
-
-  return _.trim(`${prefix}${type}${suffix}`);
-};
-
 const addBreaklinesIfNeeded = (value, breaklineChar = defaultBreaklineChar) =>
   value
     .split(breaklineChar)
@@ -71,10 +44,7 @@ module.exports = (answers, config) => {
   // Hard limit this line
   // eslint-disable-next-line max-len
   const head =
-    addType(answers.type, config) +
-    addScope(answers.scope, config) +
-    addTicketNumber(answers.ticketNumber, config) +
-    addSubject(answers.subject.slice(0, config.subjectLimit));
+    `[${answers.type}_${answers.ticketNumber}][${answers.status}][${answers.scope}] ${answers.subject}`;
 
   // Wrap these lines at 100 characters
   let body = wrap(answers.body, wrapOptions) || '';

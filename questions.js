@@ -48,8 +48,6 @@ module.exports = {
     const skipQuestions = config.skipQuestions || [];
 
     messages.type = messages.type || "Select the type of change that you're committing:";
-    messages.scope = messages.scope || '\nDenote the SCOPE of this change (optional):';
-    messages.customScope = messages.customScope || 'Denote the SCOPE of this change:';
     if (!messages.ticketNumber) {
       if (config.ticketNumberRegExp) {
         messages.ticketNumber =
@@ -59,6 +57,9 @@ module.exports = {
         messages.ticketNumber = 'Enter the ticket number:\n';
       }
     }
+    messages.status = messages.status || '\nDenote the STATUS of this change:';
+    messages.scope = messages.scope || '\nDenote the SCOPE of this change (optional):';
+    messages.customScope = messages.customScope || 'Denote the SCOPE of this change:';    
     messages.subject = messages.subject || 'Write a SHORT, IMPERATIVE tense description of the change:\n';
     messages.body =
       messages.body || 'Provide a LONGER description of the change (optional). Use "|" to break new line:\n';
@@ -72,6 +73,23 @@ module.exports = {
         name: 'type',
         message: messages.type,
         choices: config.types,
+      },
+      {
+        type: 'input',
+        name: 'ticketNumber',
+        message: messages.ticketNumber,
+        when() {
+          return !!config.allowTicketNumber; // no ticket numbers allowed unless specifed
+        },
+        validate(value) {
+          return isValidateTicketNo(value, config);
+        },
+      },
+      {
+        type: 'list',
+        name: 'status',
+        message: messages.status,
+        choices: config.statuses
       },
       {
         type: 'list',
@@ -115,17 +133,6 @@ module.exports = {
         message: messages.customScope,
         when(answers) {
           return answers.scope === 'custom';
-        },
-      },
-      {
-        type: 'input',
-        name: 'ticketNumber',
-        message: messages.ticketNumber,
-        when() {
-          return !!config.allowTicketNumber; // no ticket numbers allowed unless specifed
-        },
-        validate(value) {
-          return isValidateTicketNo(value, config);
         },
       },
       {
